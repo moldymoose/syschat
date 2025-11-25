@@ -1,15 +1,18 @@
 #include "../common/common.h"
 
 int main() {
+    // The indetifiers (file descriptors) for server and client sockets
     int server_fd, client_fd;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
 
     server_fd = create_socket();
 
+    // Sets address family to ipv4 (AF_INET)
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
+    // Converts port number from system's order to network byte order standard
     address.sin_port = htons(PORT);
+    address.sin_addr.s_addr = INADDR_ANY;
 
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
         perror("bind failed");
