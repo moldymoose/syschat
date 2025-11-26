@@ -13,12 +13,13 @@ bool prompt(char* buffer, size_t size, char* message) {
     if (length > 0 && tempBuffer[length - 1] == '\n') {
         tempBuffer[length -1] = '\0';
     } else {
+        printf("Input exceeded maximum length of %zu characters.\n", size - 1);
         flush_input();
         return false;
     }
     
     if (tempBuffer[0] == '\0') {
-        // Input was empty
+        printf("Input cannot be empty.\n");
         return false;
     }
 
