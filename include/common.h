@@ -28,5 +28,7 @@ typedef struct {
 int create_socket();
 bool prompt(char* buffer, size_t size, char* message);
 void flush_input(void);
+void start_server(config_t config);
+void start_client(config_t config);
 
 #endif

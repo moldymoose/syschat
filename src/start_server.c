@@ -24,5 +24,20 @@ void start_server(config_t config) {
 
     VPRINTF("Server listening on %s:%d\n", config.address, config.port);
 
+    while(true) {
+        VPRINTF("Waiting for client connections...\n");
+        struct sockaddr_in client_address;
+        socklen_t client_addr_len = sizeof(client_address);
+
+        int client_fd = accept(server_fd, (struct sockaddr*)&client_address, &client_addr_len);
+        if (client_fd < 0) {
+            perror("Accept failed");
+            continue;
+        }
+        VPRINTF("Client %d connected: %s:%d\n", client_fd, inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
+
+        close(client_fd);
+    }
+
     close(server_fd);
 }

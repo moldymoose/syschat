@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
         VPRINTF("Starting in server mode\n");
         if (config.address[0] == '\0') {
             strcpy(config.address, "0.0.0.0");
+            start_server(config);
         } else {
             perror("Server mode does not accept custom address");
             exit(EXIT_FAILURE);
@@ -59,6 +60,7 @@ int main(int argc, char *argv[]) {
         if (config.address[0] == '\0') {
             while(prompt(config.address, INET_ADDRSTRLEN, "Enter server address: "));
         }
+        start_client(config);
     }
 
 
