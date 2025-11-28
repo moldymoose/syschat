@@ -21,6 +21,8 @@ void start_client(config_t config) {
     }
 
     VPRINTF("Connected to server %s:%d\n", config.address, config.port);
+    //receive_handshake(socket_fd);
+    client_event_loop(socket_fd);
 
     // Close socket
     close(socket_fd);
