@@ -27,29 +27,14 @@ typedef struct {
     bool is_server;
 } config_t;
 
-#define PROTO_VERSION 1
-typedef enum {
-    PROTO_HANDSHAKE,
-    PROTO_MESSAGE,
-} proto_type_e;
-
-typedef struct {
-    proto_type_e type;
-    unsigned int length;
-} proto_header_t;
-
 int create_socket();
 bool prompt(char* buffer, size_t size, char* message);
 void flush_input(void);
 void start_server(config_t config);
 void start_client(config_t config);
-void send_handshake(int fd);
-void receive_handshake(int fd);
 void client_event_loop(int socket_fd);
 void initialize_clients();
 int find_free_client_slot();
 void server_event_loop(int listening_fd);
-void send_message(int fd, const char* message);
-void receive_message(int fd);
 
 #endif

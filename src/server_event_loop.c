@@ -1,4 +1,4 @@
-#include "common.h"
+#include "protocol.h"
 
 typedef enum {
     STATE_NEW,
@@ -90,10 +90,19 @@ void server_event_loop(int listening_fd) {
         }
 
         if (FD_ISSET(connection_fd, &read_fds)) {
-            char buffer[BUF_SIZE] = {0};
-            int bytes_read = read(connection_fd, buffer, sizeof(buffer));
-            if (bytes_read <= 0) {
-                VPRINTF("Client on fd %d disconnected or read error\n", connection_fd);
+            proto_type_e msg_type;
+            void *payload = NULL;
+            uint32_t length = 0;
+            if (recv_proto_message(connection_fd, &msg_type, &payload, &length) == 0) {
+                if(msg_type == PROTO_MESSAGE) {
+                    char* message = (char*)payload;
+                    VPRINTF("Received message from client fd %d: %s\n", connection_fd, message);
+                } else {
+                    VPRINTF("Received unknown message type %d from client fd %d\n", msg_type, connection_fd);
+                }
+                free(payload);
+            } else {
+                VPRINTF("Error receiving message from client fd %d\n", connection_fd);
                 close(connection_fd);
                 // Mark client slot as free
                 for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -102,19 +111,6 @@ void server_event_loop(int listening_fd) {
                         clients[i].state = STATE_DISCONNECTED;
                         break;
                     }
-                }
-            } else {
-                // Process incoming data from client
-                proto_header_t* header = (proto_header_t*)buffer;
-                header->type = ntohl(header->type);
-                header->length = ntohl(header->length);
-
-                if (header->type == PROTO_MESSAGE) {
-                    char* data = (char*)&header[1];
-                    data[header->length] = '\0'; // Null-terminate the message
-                    VPRINTF("Message from client fd %d: %s", connection_fd, data);
-                } else {
-                    VPRINTF("Unknown protocol type from client fd %d\n", connection_fd);
                 }
             }
         }
