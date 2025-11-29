@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
     } else {
         VPRINTF("Starting in client mode\n");
         if (config.address[0] == '\0') {
-            while(prompt(config.address, INET_ADDRSTRLEN, "Enter server address: "));
+            while(!prompt(config.address, INET_ADDRSTRLEN, "Enter server address: "));
         }
         start_client(config);
     }

@@ -2,8 +2,15 @@
 
 void client_event_loop(int socket_fd) {
     VPRINTF("Entering client event loop on fd %d\n", socket_fd);
+    char username[USERNAME_MAX] = {0};
+    while(!prompt(username, USERNAME_MAX, "Please Enter Your Name: "));
+
+    send_proto_message(socket_fd, PROTO_USERNAME, username, strlen(username));
 
     while(true) {
+        // Clears screen with ansi escape sequence
+        printf("\033[2J\033[H");
+
         // Set up file descriptor to monitor for input
         fd_set read_fds;
 

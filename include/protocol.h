@@ -8,6 +8,7 @@
 typedef enum {
     PROTO_HANDSHAKE = 1,
     PROTO_MESSAGE   = 2,
+    PROTO_USERNAME  = 3,
 } proto_type_e;
 
 ssize_t write_all(int fd, const void *buf, size_t len);
