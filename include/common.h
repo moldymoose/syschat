@@ -49,5 +49,7 @@ void client_event_loop(int socket_fd);
 void initialize_clients();
 int find_free_client_slot();
 void server_event_loop(int listening_fd);
+void send_message(int fd, const char* message);
+void receive_message(int fd);
 
 #endif
