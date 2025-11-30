@@ -25,7 +25,7 @@ You need 3 terminals running simultaneously:
 
 ### Terminal 1: Start C Server
 ```bash
-./build/server/syschat-server
+./build/syschat -s -p 8080
 ```
 *Should display: "Server listening on port 8080..."*
 
@@ -53,7 +53,7 @@ Press `Ctrl+C` in each terminal to stop the servers.
 ## Alternative: Command Line Client
 Instead of the web interface, you can use the C client:
 ```bash
-./build/client/syschat
+./build/syschat -p 8080 -a 0.0.0.0
 ```
 
 ## Architecture
