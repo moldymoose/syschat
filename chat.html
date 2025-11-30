@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SysChat</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #messages { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; }
+        #messageInput { width: 70%; padding: 5px; }
+        #sendBtn { padding: 5px 10px; }
+    </style>
+</head>
+<body>
+    <h1>SysChat</h1>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type your message...">
+    <button id="sendBtn">Send</button>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:3001');
+        const messages = document.getElementById('messages');
+        const input = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        ws.onmessage = (event) => {
+            messages.innerHTML += '<div><strong>Server:</strong> ' + event.data + '</div>';
+            messages.scrollTop = messages.scrollHeight;
+        };
+
+        function sendMessage() {
+            const message = input.value;
+            if (message) {
+                ws.send(message + '\n');
+                messages.innerHTML += '<div><strong>You:</strong> ' + message + '</div>';
+                input.value = '';
+                messages.scrollTop = messages.scrollHeight;
+            }
+        }
+
+        sendBtn.onclick = sendMessage;
+        input.onkeypress = (e) => {
+            if (e.key === 'Enter') sendMessage();
+        };
+    </script>
+</body>
+</html>
