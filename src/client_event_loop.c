@@ -1,4 +1,4 @@
-#include "protocol.h"
+#include "common.h"
 
 void client_event_loop(int socket_fd) {
     VPRINTF("Entering client event loop on fd %d\n", socket_fd);
@@ -7,7 +7,7 @@ void client_event_loop(int socket_fd) {
 
     send_proto_message(socket_fd, PROTO_USERNAME, username, strlen(username));
 
-    while(true) {
+    while(1) {
         // Clears screen with ansi escape sequence
         printf("\033[2J\033[H");
 

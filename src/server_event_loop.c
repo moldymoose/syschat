@@ -1,4 +1,4 @@
-#include "protocol.h"
+#include "common.h"
 
 typedef enum {
     STATE_NEW,
@@ -62,7 +62,7 @@ void server_event_loop(int listening_fd) {
 
     initialize_clients();
 
-    while(true) {
+    while(1) {
         FD_ZERO(&read_fds);
         FD_ZERO(&write_fds);
 

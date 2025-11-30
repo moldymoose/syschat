@@ -1,4 +1,4 @@
-#include "protocol.h"
+#include "common.h"
 
 ssize_t write_all(int fd, const void *buf, size_t len) {
     size_t sent = 0;
