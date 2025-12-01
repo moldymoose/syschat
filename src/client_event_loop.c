@@ -8,8 +8,6 @@ void client_event_loop(int socket_fd) {
     send_proto_message(socket_fd, PROTO_USERNAME, username, strlen(username));
 
     while(true) {
-        // Clears screen with ansi escape sequence
-        printf("\033[2J\033[H");
 
         // Set up file descriptor to monitor for input
         fd_set read_fds;
@@ -34,6 +32,7 @@ void client_event_loop(int socket_fd) {
             // Input from user
             char input_buffer[BUF_SIZE] = {0};
             if (fgets(input_buffer, sizeof(input_buffer), stdin) != NULL) {
+                input_buffer[strcspn(input_buffer, "\n")] = '\0';
                 int length = strlen(input_buffer);
                 send_proto_message(socket_fd, PROTO_MESSAGE, input_buffer, length);
             }
