@@ -16,6 +16,13 @@
     <div id="messages"></div>
 
     <div style="margin-bottom:10px;">
+        <!-- C server connection controls -->
+        <input type="text" id="hostInput" placeholder="SysChat server address" style="width: 24%; padding: 5px;">
+        <input type="number" id="portInput" placeholder="Port" style="width: 12%; padding: 5px; margin-left: 8px;">
+        <button id="connectBtn" style="padding: 5px 10px; margin-left: 6px;">Connect</button>
+    </div>
+
+    <div style="margin-bottom:10px;">
         <input type="text" id="messageInput" placeholder="Type your message...">
         <button id="sendBtn">Send</button>
         <!-- username area -->
@@ -29,16 +36,31 @@
         const input = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
 
+        const hostInput = document.getElementById('hostInput');
+        const portInput = document.getElementById('portInput');
+        const connectBtn = document.getElementById('connectBtn');
         const usernameInput = document.getElementById('usernameInput');
         const setUserBtn = document.getElementById('setUserBtn');
 
         let currentUsername = '';
+        let tcpConnected = false;
         ws.onmessage = (event) => {
             // event.data is a string like 'Username: message'
             const msg = event.data;
             messages.innerHTML += '<div>' + msg + '</div>';
             messages.scrollTop = messages.scrollHeight;
         };
+
+        // Send a connect instruction to the proxy so it can connect to the C server
+        function connectToCServer() {
+            const host = hostInput.value.trim() || '127.0.0.1';
+            const port = parseInt(portInput.value, 10) || 8080;
+            const payload = JSON.stringify({ type: 'connect', host, port });
+            ws.send(payload);
+            messages.innerHTML += '<div><em>Connecting to SysChat server ' + host + ':' + port + '...</em></div>';
+            messages.scrollTop = messages.scrollHeight;
+            // Optimistically mark as pending; proxy will handle actual connect
+        }
 
         function sendMessage() {
             const message = input.value;
@@ -69,6 +91,10 @@
         usernameInput.onkeypress = (e) => {
             if (e.key === 'Enter') setUsername();
         };
+
+        connectBtn.onclick = connectToCServer;
+        hostInput.onkeypress = (e) => { if (e.key === 'Enter') connectToCServer(); };
+        portInput.onkeypress = (e) => { if (e.key === 'Enter') connectToCServer(); };
     </script>
 </body>
 </html>

@@ -10,12 +10,37 @@ const wss = new WebSocket.Server({ port: 3001 });
 wss.on('connection', (ws) => {
     console.log('Web client connected');
     
-    const tcpClient = new net.Socket();
+    let tcpClient = new net.Socket();
     let recvBuffer = Buffer.alloc(0);
+    let tcpConnected = false;
+    let pendingQueue = [];
     
-    tcpClient.connect(8080, '127.0.0.1', () => {
-        console.log('Connected to C server');
-    });
+    function connectTcp(host, port) {
+        if (tcpConnected) {
+            try { tcpClient.destroy(); } catch (_) {}
+            tcpClient = new net.Socket();
+            recvBuffer = Buffer.alloc(0);
+            tcpConnected = false;
+        }
+
+        tcpClient.connect(port, host, () => {
+            tcpConnected = true;
+            console.log(`Connected to SysChat server ${host}:${port}`);
+            try { ws.send(`Connected to SysChat server ${host}:${port}`); } catch (_) {}
+            // flush any queued messages
+            for (const buf of pendingQueue) {
+                tcpClient.write(buf);
+            }
+            pendingQueue = [];
+        });
+        tcpClient.on('error', (err) => {
+            console.error('TCP error', err);
+            try { ws.send(`TCP error: ${err.message}`); } catch (_) {}
+            tcpClient.destroy();
+            tcpConnected = false;
+        });
+        tcpClient.on('close', () => { tcpConnected = false; try { ws.close(); } catch(_){} });
+    }
     
     // Forward WebSocket messages to the C server using the message protocol
     ws.on('message', (message) => {
@@ -38,6 +63,16 @@ wss.on('connection', (ws) => {
         if (msgStr) {
             try {
                 const obj = JSON.parse(msgStr);
+                // Handle connection instruction from browser
+                if (obj && obj.type === 'connect' && typeof obj.host === 'string' && (typeof obj.port === 'number' || typeof obj.port === 'string')) {
+                    const port = typeof obj.port === 'string' ? parseInt(obj.port, 10) : obj.port;
+                    if (!Number.isFinite(port)) {
+                        try { ws.send('Invalid port'); } catch(_){}
+                        return;
+                    }
+                    connectTcp(obj.host, port);
+                    return;
+                }
                 if (obj && obj.type === 'username' && typeof obj.username === 'string') {
                     protoType = PROTO_USERNAME;
                     payloadBuf = Buffer.from(obj.username, 'utf8');
@@ -55,7 +90,13 @@ wss.on('connection', (ws) => {
         header.writeUInt8(protoType, 0);           // type
         // bytes 1-3 remain zero (padding)
         header.writeUInt32BE(payloadBuf.length, 4);       // length (big-endian)
-        tcpClient.write(Buffer.concat([header, payloadBuf]));
+        const frame = Buffer.concat([header, payloadBuf]);
+        if (tcpConnected) {
+            tcpClient.write(frame);
+        } else {
+            // queue until connected
+            pendingQueue.push(frame);
+        }
     });
     
     // Parse framed protocol messages coming from the C server and forward payload to WS client
@@ -84,8 +125,9 @@ wss.on('connection', (ws) => {
         tcpClient.destroy();
     });
     
-    tcpClient.on('close', () => ws.close());
-    tcpClient.on('error', (err) => { console.error('TCP error', err); tcpClient.destroy(); });
+    // ws close/error
+    // tcp close/error handled in connectTcp
+    // keep existing ws error handling
     ws.on('error', (err) => { console.error('WS error', err); ws.close(); });
 });
 
