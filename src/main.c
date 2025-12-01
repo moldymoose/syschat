@@ -1,5 +1,5 @@
 #include "common.h"
-
+int verbose = 0;
 int main(int argc, char *argv[]) {
 
     config_t config = {0};
@@ -30,6 +30,7 @@ int main(int argc, char *argv[]) {
                 config.port = atoi(optarg);
                 break;
             case 'v':
+                verbose = 1;
                 VPRINTF("Verbose mode enabled\n");
                 break;
             default:

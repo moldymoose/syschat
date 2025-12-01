@@ -12,9 +12,10 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+extern int verbose;
 #define VPRINTF(fmt, ...) \
     do { \
-        fprintf(stderr, fmt, ##__VA_ARGS__); \
+        if (verbose == 1) fprintf(stderr, fmt, ##__VA_ARGS__); \
     } while (0)
 
 #define BUF_SIZE 4096 
