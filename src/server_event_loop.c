@@ -137,6 +137,21 @@ void server_event_loop(int listening_fd) {
                         char *message = (char *)payload;
                         client_state_t* st = fd_table[fd];
                         VPRINTF("Received message from client fd %d: user %s: %s\n", fd, st ? st->username : "unknown", message);
+                        
+                        // Broadcast message to all connected clients
+                        // Format: "username: message"
+                        char broadcast_buffer[BUF_SIZE];
+                        int broadcast_len = snprintf(broadcast_buffer, BUF_SIZE, "%s: %s", 
+                                                     st ? st->username : "unknown", message);
+                        
+                        if (broadcast_len > 0 && broadcast_len < BUF_SIZE) {
+                            for (int j = 0; j < active_count; ++j) {
+                                int client_fd = active_fds[j];
+                                if (send_proto_message(client_fd, PROTO_MESSAGE, broadcast_buffer, broadcast_len) != 0) {
+                                    VPRINTF("Failed to broadcast message to client fd %d\n", client_fd);
+                                }
+                            }
+                        }
                         break;
                     }
                     case PROTO_USERNAME: {

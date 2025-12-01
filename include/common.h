@@ -21,6 +21,7 @@ extern int verbose;
 #define BUF_SIZE 4096 
 #define USERNAME_MAX 24
 #define MAX_CLIENTS 256
+#define MAX_STORED_MESSAGES 10
 
 typedef struct {
     char address[INET_ADDRSTRLEN];

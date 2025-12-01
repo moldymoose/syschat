@@ -50,7 +50,8 @@ int recv_proto_message(int fd, proto_type_e *type, void **payload, uint32_t *len
     *type = header[0];
     *length = ntohl(*(uint32_t*)&header[4]);
 
-    *payload = malloc(*length);
+    // Allocate one extra byte for null-termination
+    *payload = malloc(*length + 1);
     if (*payload == NULL)
         return -1;
 
@@ -58,6 +59,8 @@ int recv_proto_message(int fd, proto_type_e *type, void **payload, uint32_t *len
         free(*payload);
         return -1;
     }
+    // Always null-terminate for safe string usage
+    ((char *)(*payload))[*length] = '\0';
 
     return 0;
 }
