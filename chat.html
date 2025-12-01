@@ -32,8 +32,11 @@
         const usernameInput = document.getElementById('usernameInput');
         const setUserBtn = document.getElementById('setUserBtn');
 
+        let currentUsername = '';
         ws.onmessage = (event) => {
-            messages.innerHTML += '<div><strong>Server:</strong> ' + event.data + '</div>';
+            // event.data is a string like 'Username: message'
+            const msg = event.data;
+            messages.innerHTML += '<div>' + msg + '</div>';
             messages.scrollTop = messages.scrollHeight;
         };
 
@@ -41,9 +44,8 @@
             const message = input.value;
             if (message) {
                 ws.send(message);
-                messages.innerHTML += '<div><strong>You:</strong> ' + message + '</div>';
+                // Do not display the message immediately; wait for server rebroadcast
                 input.value = '';
-                messages.scrollTop = messages.scrollHeight;
             }
         }
 
@@ -53,6 +55,7 @@
             // send a JSON object so proxy can detect and send PROTO_USERNAME
             const payload = JSON.stringify({ type: 'username', username: name });
             ws.send(payload);
+            currentUsername = name;
             messages.innerHTML += '<div><em>Username set to: ' + name + '</em></div>';
             messages.scrollTop = messages.scrollHeight;
         }

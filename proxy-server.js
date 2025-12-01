@@ -66,8 +66,15 @@ wss.on('connection', (ws) => {
             const length = recvBuffer.readUInt32BE(4);
             if (recvBuffer.length < PROTO_HEADER_SIZE + length) break; // wait for full payload
             const payload = recvBuffer.slice(PROTO_HEADER_SIZE, PROTO_HEADER_SIZE + length);
-            // forward payload to websocket client (binary or text)
-            try { ws.send(payload); } catch (err) { console.error('WS send error', err); }
+
+            if (type === PROTO_MESSAGE) {
+                // Convert payload to UTF-8 string and send as text
+                const text = payload.toString('utf8');
+                try { ws.send(text); } catch (err) { console.error('WS send error', err); }
+            } else {
+                // For other types, forward as binary
+                try { ws.send(payload); } catch (err) { console.error('WS send error', err); }
+            }
             recvBuffer = recvBuffer.slice(PROTO_HEADER_SIZE + length);
         }
     });
