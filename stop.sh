@@ -1,6 +1,6 @@
 #!/bin/bash
 
 echo "Stopping SysChat..."
-docker-compose down
+docker compose down
 
 echo "SysChat stopped"

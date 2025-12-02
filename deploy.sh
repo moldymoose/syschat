@@ -21,17 +21,17 @@ fi
 
 # Stop any existing containers
 echo "Stopping existing containers..."
-docker-compose down 2>/dev/null || true
+docker compose down 2>/dev/null || true
 
 # Build and start the application
 echo "Building and starting SysChat..."
-docker-compose up --build -d
+docker compose up --build -d
 
 # Wait a moment for services to start
 sleep 5
 
 # Check if containers are running
-if docker-compose ps | grep -q "Up"; then
+if docker compose ps | grep -q "Up"; then
     echo "SysChat is running!"
     echo "Access your chat at: http://$(hostname -I | awk '{print $1}'):8000/chat.html"
     echo "View logs: docker-compose logs -f"
