@@ -18,6 +18,8 @@ extern int verbose;
         if (verbose == 1) fprintf(stderr, fmt, ##__VA_ARGS__); \
     } while (0)
 
+#define CLEAR_SCREEN() printf("\033[2J\033[H")
+
 #define BUF_SIZE 4096 
 #define USERNAME_MAX 24
 #define MAX_CLIENTS 256
