@@ -21,9 +21,9 @@ void start_client(config_t config) {
     }
 
     VPRINTF("Connected to server %s:%d\n", config.address, config.port);
-    //receive_handshake(socket_fd);
+    // Start client event loop
     client_event_loop(socket_fd);
 
-    // Close socket
+    // Close socket -- realistically i don't think you can get here because theres no exit from the event loop
     close(socket_fd);
 }

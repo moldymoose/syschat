@@ -1,17 +1,19 @@
 #include "protocol.h"
 
-// Circular buffer for storing last N messages
+// Circular buffer for storing last few messages (set by MAX_STORED_MESSAGES)
 typedef struct {
     char messages[MAX_STORED_MESSAGES][BUF_SIZE];
-    int count;  // Total messages received (may exceed MAX_STORED_MESSAGES)
+    int count;  // Total messages recieved by client (not total stored)
     int head;   // Index where next message will be written
 } message_buffer_t;
 
+// Sets number of messages to 0, location of Index to beginning, and clears all data in message buffer
 static void init_message_buffer(message_buffer_t *buf) {
     buf->count = 0;
     buf->head = 0;
     memset(buf->messages, 0, sizeof(buf->messages));
 }
+
 
 static void add_message(message_buffer_t *buf, const char *message) {
     // Clear the slot first to avoid leftover data
