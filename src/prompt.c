@@ -1,5 +1,7 @@
 #include "common.h"
 
+// Prompts user with message and stores input in buffer (if it fits).
+// Returns true if input was successfully stored, false otherwise.
 bool prompt(char* buffer, size_t size, char* message) {
     char tempBuffer[size + 1];  // temp buffer has space for newline
     printf("%s", message);
