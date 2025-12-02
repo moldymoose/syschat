@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  syschat:
+    build: .
+    ports:
+      - "8000:8000"   # Web server
+      - "3001:3001"   # WebSocket proxy
+      - "8080:8080"   # C server
+    volumes:
+      - ./chat.html:/app/chat.html
+    restart: unless-stopped
+    container_name: syschat-app
