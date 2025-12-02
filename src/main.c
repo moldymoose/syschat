@@ -21,6 +21,10 @@ int main(int argc, char *argv[]) {
         switch (opt) {
             case 'h':
                 printf("Usage: %s [--server] [--address <address>] [--port <port>]\n", argv[0]);
+                printf("--server      Start in server mode (default is client mode)\n");
+                printf("--address     Specify the address to connect to (client mode)\n");
+                printf("--port        Specify the port number to use\n");
+                printf("--verbose     Enable verbose output\n");
                 exit(EXIT_SUCCESS);
             case 's':
                 config.is_server = true;
@@ -37,8 +41,8 @@ int main(int argc, char *argv[]) {
                 VPRINTF("Verbose mode enabled\n");
                 break;
             default:
-                fprintf (stderr, "Unknown flag \"%c\"\n");
                 fprintf(stderr, "Usage: %s [--server] [--address <address>] [--port <port>]\n", argv[0]);
+                fprintf(stderr, "Use --help for more information.\n");
                 exit(EXIT_FAILURE);
         }
     }
