@@ -1,9 +1,11 @@
 #include "common.h"
-int verbose = 0;
-int main(int argc, char *argv[]) {
 
+int verbose = 0; // Verbose mode off by default
+int main(int argc, char *argv[]) {
+    // config for socket data
     config_t config = {0};
 
+    // flag options
     int opt;
     static struct option long_options[] = {
         {"help", no_argument, 0, 'h'},
@@ -14,6 +16,7 @@ int main(int argc, char *argv[]) {
         {0, 0, 0, 0}
     };
     int option_index = 0;
+    // Parse flags
     while ((opt = getopt_long(argc, argv, "hsa:p:v", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'h':
@@ -34,11 +37,13 @@ int main(int argc, char *argv[]) {
                 VPRINTF("Verbose mode enabled\n");
                 break;
             default:
+                fprintf (stderr, "Unknown flag \"%c\"\n");
                 fprintf(stderr, "Usage: %s [--server] [--address <address>] [--port <port>]\n", argv[0]);
                 exit(EXIT_FAILURE);
         }
     }
 
+    // Assign port if unassigned
     if (config.port == 0) {
         char buffer[6] = {0};
         while (atoi(buffer) < 1024 || atoi(buffer) > 65535) {
@@ -47,6 +52,7 @@ int main(int argc, char *argv[]) {
         config.port = atoi(buffer);
     }
 
+    // Start in either server or client mode
     if (config.is_server) {
         VPRINTF("Starting in server mode\n");
         if (config.address[0] == '\0') {
