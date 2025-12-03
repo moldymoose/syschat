@@ -16,7 +16,7 @@
     <div id="messages"></div>
 
     <div style="margin-bottom:10px;">
-        <!-- C server connection controls -->
+        
         <input type="password" id="hostInput" placeholder="SysChat server address" style="width: 24%; padding: 5px;">
         <input type="password" id="portInput" placeholder="Port" style="width: 12%; padding: 5px; margin-left: 8px;">
         <button id="connectBtn" style="padding: 5px 10px; margin-left: 6px;">Connect</button>
@@ -25,7 +25,7 @@
     <div style="margin-bottom:10px;">
         <input type="text" id="messageInput" placeholder="Type your message...">
         <button id="sendBtn">Send</button>
-        <!-- username area -->
+        
         <input type="text" id="usernameInput" placeholder="Username">
         <button id="setUserBtn">Set</button>
     </div>
@@ -51,7 +51,7 @@
             messages.scrollTop = messages.scrollHeight;
         };
 
-        // Send a connect instruction to the proxy so it can connect to the C server
+        // send a connect instruction to the proxy so it can connect to the C server
         function connectToCServer() {
             const host = hostInput.value.trim() || '127.0.0.1';
             const port = parseInt(portInput.value, 10) || 8080;
@@ -59,14 +59,13 @@
             ws.send(payload);
             messages.innerHTML += '<div><em>Connecting to SysChat server ' + host + ':' + port + '...</em></div>';
             messages.scrollTop = messages.scrollHeight;
-            // Optimistically mark as pending; proxy will handle actual connect
         }
 
         function sendMessage() {
             const message = input.value;
             if (message) {
                 ws.send(message);
-                // Do not display the message immediately; wait for server rebroadcast
+                // dontt display the message immediately wait for server rebroadcast
                 input.value = '';
             }
         }

@@ -42,15 +42,15 @@ wss.on('connection', (ws) => {
         tcpClient.on('close', () => { tcpConnected = false; try { ws.close(); } catch(_){} });
     }
     
-    // Forward WebSocket messages to the C server using the message protocol
+    // forward WebSocket messages to the C server using the message protocol
     ws.on('message', (message) => {
-        // Default to regular message
+        // default to regular message
         let protoType = PROTO_MESSAGE;
         let payloadBuf = null;
 
-        // To robustly detect a JSON username payload, convert incoming
+        // to robustly detect a JSON username payload convert incoming
         // message to a UTF-8 string when possible and attempt JSON.parse.
-        // This handles cases where the ws library gives us a Buffer.
+        // this handles cases where the ws library gives us a Buffer.
         let msgStr = null;
         if (typeof message === 'string') {
             msgStr = message;
@@ -63,7 +63,7 @@ wss.on('connection', (ws) => {
         if (msgStr) {
             try {
                 const obj = JSON.parse(msgStr);
-                // Handle connection instruction from browser
+                // handle connection instruction from browser
                 if (obj && obj.type === 'connect' && typeof obj.host === 'string' && (typeof obj.port === 'number' || typeof obj.port === 'string')) {
                     const port = typeof obj.port === 'string' ? parseInt(obj.port, 10) : obj.port;
                     if (!Number.isFinite(port)) {
@@ -78,7 +78,7 @@ wss.on('connection', (ws) => {
                     payloadBuf = Buffer.from(obj.username, 'utf8');
                 }
             } catch (e) {
-                // not JSON -- fallthrough to normal message
+                // not JSON fallthrough to normal message
             }
         }
 
@@ -87,9 +87,9 @@ wss.on('connection', (ws) => {
         }
 
         const header = Buffer.alloc(PROTO_HEADER_SIZE);
-        header.writeUInt8(protoType, 0);           // type
+        header.writeUInt8(protoType, 0);
         // bytes 1-3 remain zero (padding)
-        header.writeUInt32BE(payloadBuf.length, 4);       // length (big-endian)
+        header.writeUInt32BE(payloadBuf.length, 4);
         const frame = Buffer.concat([header, payloadBuf]);
         if (tcpConnected) {
             tcpClient.write(frame);
@@ -99,7 +99,7 @@ wss.on('connection', (ws) => {
         }
     });
     
-    // Parse framed protocol messages coming from the C server and forward payload to WS client
+    // parse framed protocol messages coming from the C server and forward payload to WS client
     tcpClient.on('data', (data) => {
         recvBuffer = Buffer.concat([recvBuffer, data]);
         while (recvBuffer.length >= PROTO_HEADER_SIZE) {
@@ -109,11 +109,11 @@ wss.on('connection', (ws) => {
             const payload = recvBuffer.slice(PROTO_HEADER_SIZE, PROTO_HEADER_SIZE + length);
 
             if (type === PROTO_MESSAGE) {
-                // Convert payload to UTF-8 string and send as text
+                // convert payload to UTF-8 string and send as text
                 const text = payload.toString('utf8');
                 try { ws.send(text); } catch (err) { console.error('WS send error', err); }
             } else {
-                // For other types, forward as binary
+                // for other types, forward as binary
                 try { ws.send(payload); } catch (err) { console.error('WS send error', err); }
             }
             recvBuffer = recvBuffer.slice(PROTO_HEADER_SIZE + length);
