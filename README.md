@@ -1,71 +1,30 @@
 # SysChat
+SysChat is an instant messaging program written in C for linux systems.  It accesses system resources to create a TCP socket for sending messages over a simple custom protocol.
 
-A simple chat application with C backend and web frontend.
+It utilizes POSIX/Linux networking headers and is built with GNUmake
 
-## Deployment Options
+## Usage
+The source code builds to a single program (SysChat).  By default, SysChat runs in client mode, but can run as a server by using the --server flag.  Flags can also be used to specify what IP address and port to connect to, otherwise the program will prompt the user for the connectiond details.
 
-### Option 1: Docker Container (Recommended)
-```bash
-# Quick start
-./deploy.sh
+### Accepted Flags
+#### --help
+- Displays program usage
+#### --server
+- Deploys program in server mode
+#### --address
+- Allows user to specify server address to connect to
+#### --port
+- Allows user to specify to specify port for server connection
+#### --verbose
+- Enables VPRINTF macro
 
-# Access at: http://localhost:8000/chat.html or from link in terminal
-# Stop with: stop.sh, or docker compose down
-```
+## Program Design
+### SysChat Protocol
+Data is exchanged over a TCP socket using an 8 byte header.
+- The first byte is an enumerator representing the type of data being sent. It is followed by 3 bytes of padding.
+- The last 4 bytes are a 32 bit integer representing the length of the payload.
+- The subsequent payload can technically be any type of data, but both currently implemented protocol types cast it as a string.
 
-### Option 2: Manual Terminal Setup
-
-#### Install Dependencies
-```bash
-# Install build tools
-apt update
-apt install build-essential nodejs npm
-
-# Install WebSocket library
-npm install ws
-```
-
-#### Build the Project
-```bash
-make
-```
-
-#### Running the Chat (3 terminals needed)
-
-**Terminal 1: Start C Server**
-```bash
-./build/syschat -s -p 8080
-```
-*Should display: "Server listening on port 8080..."*
-
-**Terminal 2: Start WebSocket Proxy**
-```bash
-node proxy-server.js
-```
-*Should display: "WebSocket proxy running on port 3001"*
-
-**Terminal 3: Start Web Server**
-```bash
-python3 -m http.server 8000
-```
-*Should display: "Serving HTTP on 0.0.0.0 port 8000..."*
-
-#### Access the Chat
-Open your browser and go to:
-```
-http://localhost:8000/chat.html
-```
-
-#### Stopping the Servers
-Press `Ctrl+C` in each terminal to stop the servers.
-
-## Alternative: Command Line Client
-Instead of the web interface, you can use the C client:
-```bash
-./build/syschat -p 8080 -a 0.0.0.0
-```
-
-## Architecture
-```
-Web Browser → WebSocket Proxy (port 3001) → C Server (port 8080)
-```
+## Event loops
+- Both server/client event loops use Select() for IO multiplexing. allowing the program to accept data from multiple data streams.
+- Upon recieving a payload with the "Message" protocol header, the server echos the payload to all connected clients along with the name of the sender.
